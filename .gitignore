@@ -1,0 +1,24 @@
+# 忽略 Python 缓存
+__pycache__/
+*.py[cod]
+
+# 忽略本地配置文件
+.env
+
+# 忽略 IDE 配置
+.idea/
+.vscode/
+
+# 排除大型数据集
+*.csv
+*.json
+
+# 排除编译输出和打包文件
+dist/
+build/
+*.exe
+*.pkg
+
+# 排除 Python 虚拟环境
+venv/
+.venv/
