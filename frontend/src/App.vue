@@ -35,14 +35,9 @@
           <span>招聘控制台</span>
         </el-menu-item>
 
-        <el-menu-item v-if="role === 'admin'" index="/">
-          <el-icon><PieChart /></el-icon>
-          <span>平台总览</span>
-        </el-menu-item>
-
         <el-menu-item v-if="role === 'admin'" index="/admin">
           <el-icon><Setting /></el-icon>
-          <span>运营与实验室</span>
+          <span>平台总览</span>
         </el-menu-item>
       </el-menu>
 
@@ -77,7 +72,7 @@
 <script setup>
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { Document, Management, PieChart, Setting, SwitchButton, User } from '@element-plus/icons-vue'
+import { Document, Management, Setting, SwitchButton, User } from '@element-plus/icons-vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -105,8 +100,8 @@ const roleDescription = computed(() => {
 })
 
 const capabilityList = computed(() => {
-  if (role.value === 'seeker') return ['求职资料管理', '岗位机会浏览', '投递与收藏', '面试与反馈']
-  if (role.value === 'hr') return ['职位发布维护', '人才匹配排序', '申请处理', '招聘沟通协作']
+  if (role.value === 'seeker') return ['求职资料管理', '岗位推荐浏览', '投递与收藏', '面试与反馈']
+  if (role.value === 'hr') return ['职位发布维护', '人才匹配排序', '申请处理', '招聘沟通动作']
   if (role.value === 'admin') return ['平台监控', '公告与反馈', '词库维护', '算法实验']
   return []
 })

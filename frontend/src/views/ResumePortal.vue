@@ -3,8 +3,6 @@
     <div class="workspace-shell">
       <aside class="workspace-aside">
         <div class="workspace-title">求职功能导航</div>
-        <div class="workspace-subtitle">把简历、机会和投递动作放到同一个工作流里查看。</div>
-
         <el-menu :default-active="activePanel" class="section-menu" @select="handlePanelChange">
           <el-menu-item index="overview">
             <el-icon><DataBoard /></el-icon>
@@ -20,14 +18,9 @@
           </el-menu-item>
           <el-menu-item index="recommendations">
             <el-icon><Opportunity /></el-icon>
-            <span>岗位机会</span>
+            <span>岗位推荐</span>
           </el-menu-item>
         </el-menu>
-
-        <div class="aside-tip">
-          <div class="aside-tip-title">结构调整说明</div>
-          <div class="aside-tip-text">简历解析与匹配仍然保留，但现在被收纳进“求职资料”和“岗位机会”两个模块中。</div>
-        </div>
       </aside>
 
       <div class="workspace-main">
@@ -36,7 +29,7 @@
             <div class="overview-head-content">
               <div>
                 <div class="overview-kicker">求职工作台</div>
-                <div class="overview-head-title">统一查看资料、机会与动作</div>
+                <div class="overview-head-title">统一查看资料、推荐与动作</div>
               </div>
               <el-button type="primary" @click="activePanel = 'resumeSync'">同步简历</el-button>
             </div>
@@ -54,14 +47,14 @@
               <el-card class="summary-card">
                 <div class="summary-label">技能标签</div>
                 <div class="summary-value">{{ parsedData.skills.length }}</div>
-                <div class="summary-note">用于支持岗位机会分析与差距提示</div>
+                <div class="summary-note">用于支持岗位推荐分析与差距提示</div>
               </el-card>
             </el-col>
             <el-col :span="8">
               <el-card class="summary-card">
-                <div class="summary-label">岗位机会</div>
+                <div class="summary-label">岗位推荐</div>
                 <div class="summary-value">{{ recommendedJobs.length }}</div>
-                <div class="summary-note">推荐结果作为求职辅助，不再独占首页</div>
+                <div class="summary-note">推荐结果作为求职辅助</div>
               </el-card>
             </el-col>
           </el-row>
@@ -82,7 +75,7 @@
               <el-card class="overview-card" header="下一步动作">
                 <div class="action-list">
                   <button class="action-item" @click="activePanel = 'resumeEdit'">更新简历内容并重新保存</button>
-                  <button class="action-item" @click="activePanel = 'recommendations'">查看岗位机会与投递动作</button>
+                  <button class="action-item" @click="activePanel = 'recommendations'">查看岗位推荐与投递动作</button>
                   <button class="action-item" @click="activePanel = 'resumeSync'">重新上传文件并刷新画像</button>
                 </div>
               </el-card>
@@ -144,34 +137,46 @@
         <section v-show="activePanel === 'recommendations'" class="panel-section">
           <el-card class="job-card">
             <template #header>
-              <div class="card-header">
-                <span>岗位机会管理</span>
-                <el-tag type="info">推荐只是辅助决策模块</el-tag>
+              <div class="recommendation-header">
+                <div>
+                  <div class="recommendation-kicker">岗位推荐</div>
+                  <div class="recommendation-title">根据当前资料生成的推荐列表</div>
+                </div>
+                <el-tag type="primary" effect="plain">{{ recommendedJobs.length }} 个推荐结果</el-tag>
               </div>
             </template>
-            <el-table :data="recommendedJobs" style="width: 100%" height="540" stripe>
-              <el-table-column label="契合度" width="100">
-                <template #default="scope">
-                  <el-progress type="circle" :percentage="scope.row.score" :width="45" :stroke-width="4" />
-                </template>
-              </el-table-column>
-              <el-table-column label="岗位详情" min-width="240">
-                <template #default="scope">
-                  <div class="job-title">{{ scope.row.job_info.title }}</div>
-                  <div class="job-meta">{{ scope.row.job_info.company }} | {{ scope.row.job_info.loc }}</div>
-                </template>
-              </el-table-column>
-              <el-table-column label="技能要求" prop="job_info.skills" show-overflow-tooltip />
-              <el-table-column label="操作" width="220">
-                <template #default="scope">
-                  <el-button-group>
-                    <el-button type="primary" size="small" @click="handleApply(scope.row)">投递</el-button>
-                    <el-button type="warning" size="small" @click="handleFavorite(scope.row)">收藏</el-button>
-                    <el-button type="info" size="small" @click="analyzeGap(scope.row)">分析</el-button>
-                  </el-button-group>
-                </template>
-              </el-table-column>
-            </el-table>
+
+            <div v-if="recommendedJobs.length" class="recommendation-list">
+              <article v-for="row in recommendedJobs" :key="row.job_info.id" class="recommendation-item">
+                <div class="recommendation-score">
+                  <div class="recommendation-score-value">{{ row.score }}%</div>
+                  <div class="recommendation-score-label">匹配度</div>
+                </div>
+
+                <div class="recommendation-body">
+                  <div class="recommendation-meta">
+                    <div>
+                      <div class="job-title">{{ row.job_info.title }}</div>
+                      <div class="job-meta">{{ row.job_info.company }} | {{ row.job_info.loc }}</div>
+                    </div>
+                    <el-tag type="success" effect="light">推荐岗位</el-tag>
+                  </div>
+
+                  <div class="recommendation-skills">
+                    <el-tag v-for="skill in jobSkills(row)" :key="skill" type="info" effect="plain">
+                      {{ skill }}
+                    </el-tag>
+                  </div>
+
+                  <div class="recommendation-actions">
+                    <el-button type="primary" @click="handleApply(row)">投递</el-button>
+                    <el-button type="warning" @click="handleFavorite(row)">收藏</el-button>
+                    <el-button type="info" plain @click="analyzeGap(row)">差距分析</el-button>
+                  </div>
+                </div>
+              </article>
+            </div>
+            <el-empty v-else description="暂无岗位推荐，请先完善简历资料" />
           </el-card>
         </section>
       </div>
@@ -299,6 +304,15 @@ const analyzeGap = async (row) => {
   ElMessageBox.alert(res.data.advice, '改进建议')
 }
 
+const jobSkills = (row) => {
+  const skills = row?.job_info?.skills || ''
+  return String(skills)
+    .split(/[,\uff0c/|]/)
+    .map((item) => item.trim())
+    .filter(Boolean)
+    .slice(0, 6)
+}
+
 const removeSkill = (skill) => {
   parsedData.value.skills = parsedData.value.skills.filter((tag) => tag !== skill)
 }
@@ -391,26 +405,6 @@ watch(activePanel, (panel) => {
 .section-menu :deep(.el-menu-item.is-active) {
   background: #0f172a;
   color: #ffffff;
-}
-
-.aside-tip {
-  margin-top: 24px;
-  padding: 16px;
-  background: #eff6ff;
-  border: 1px solid #bfdbfe;
-  border-radius: 18px;
-}
-
-.aside-tip-title {
-  font-weight: 700;
-  color: #1d4ed8;
-  margin-bottom: 8px;
-}
-
-.aside-tip-text {
-  font-size: 13px;
-  line-height: 1.7;
-  color: #334155;
 }
 
 .workspace-main {
@@ -544,8 +538,86 @@ watch(activePanel, (panel) => {
   align-items: center;
 }
 
-.job-card :deep(.el-card__header) {
-  border-left: 5px solid #67c23a;
+.recommendation-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.recommendation-kicker {
+  font-size: 12px;
+  color: #64748b;
+  margin-bottom: 6px;
+}
+
+.recommendation-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.recommendation-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.recommendation-item {
+  display: grid;
+  grid-template-columns: 108px 1fr;
+  gap: 18px;
+  padding: 18px;
+  border: 1px solid #dbe7f3;
+  border-radius: 20px;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+}
+
+.recommendation-score {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 18px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #1d4ed8;
+}
+
+.recommendation-score-value {
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.recommendation-score-label {
+  margin-top: 8px;
+  font-size: 12px;
+}
+
+.recommendation-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.recommendation-meta {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.recommendation-skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.recommendation-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .job-title {
@@ -559,6 +631,50 @@ watch(activePanel, (panel) => {
   margin-top: 4px;
 }
 
+.workspace-main :deep(.el-card) {
+  border-radius: 20px;
+  border: 1px solid #dbe7f3;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.05);
+}
+
+.workspace-main :deep(.el-card__header) {
+  padding: 18px 20px;
+  border-bottom: 1px solid #e2e8f0;
+  color: #0f172a;
+  font-weight: 700;
+}
+
+.workspace-main :deep(.el-card__body) {
+  padding: 20px;
+}
+
+.workspace-main :deep(.el-table) {
+  --el-table-border-color: #dbe7f3;
+  --el-table-header-bg-color: #f6faff;
+  --el-table-row-hover-bg-color: #f8fbff;
+  border: 1px solid #dbe7f3;
+  border-radius: 18px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.workspace-main :deep(.el-table th.el-table__cell) {
+  color: #64748b;
+  font-weight: 700;
+  background: #f6faff;
+}
+
+.workspace-main :deep(.el-button) {
+  border-radius: 12px;
+}
+
+.workspace-main :deep(.el-input__wrapper),
+.workspace-main :deep(.el-textarea__inner) {
+  border-radius: 14px;
+  box-shadow: 0 0 0 1px #dbe7f3 inset;
+}
+
 @media (max-width: 1100px) {
   .workspace-shell {
     grid-template-columns: 1fr;
@@ -566,6 +682,16 @@ watch(activePanel, (panel) => {
 
   .sync-layout {
     grid-template-columns: 1fr;
+  }
+
+  .recommendation-item {
+    grid-template-columns: 1fr;
+  }
+
+  .recommendation-header,
+  .recommendation-meta {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }
 </style>

@@ -3,12 +3,12 @@
     <div class="lab-shell">
       <aside class="lab-aside">
         <div class="lab-title">管理员功能导航</div>
-        <div class="lab-subtitle">从平台运营视角管理公告、反馈、词库和算法实验，而不是只展示匹配模块。</div>
+        <div class="lab-subtitle">从平台运营视角管理公告、反馈、词库和算法实验。</div>
 
         <el-menu :default-active="activeSection" class="lab-menu" @select="(key) => activeSection = key">
           <el-menu-item index="overview">
             <el-icon><Grid /></el-icon>
-            <span>运营总览</span>
+            <span>平台总览</span>
           </el-menu-item>
           <el-menu-item index="announcements">
             <el-icon><Bell /></el-icon>
@@ -60,7 +60,7 @@
           </el-row>
 
           <el-row :gutter="18" style="margin-top: 18px;">
-            <el-col :span="12">
+            <el-col :span="24">
               <el-card header="运营动作快捷入口">
                 <div class="quick-actions">
                   <button class="quick-action" @click="activeSection = 'announcements'">发布系统公告</button>
@@ -68,12 +68,6 @@
                   <button class="quick-action" @click="activeSection = 'dictionary'">维护技能词库</button>
                   <button class="quick-action" @click="activeSection = 'sandbox'">进入算法沙箱</button>
                 </div>
-              </el-card>
-            </el-col>
-            <el-col :span="12">
-              <el-card header="模块定位">
-                <div class="module-note">当前后台不再把“推荐算法”作为唯一核心，而是把它纳入平台运营工具的一部分。</div>
-                <div class="module-note">页面结构优先展示运营层、治理层和实验层，便于直接说明项目工作量和系统范围。</div>
               </el-card>
             </el-col>
           </el-row>
@@ -136,8 +130,8 @@
         <section v-show="activeSection === 'dictionary'" class="lab-panel">
           <el-card header="核心技能词库管理" shadow="hover">
             <div class="dictionary-toolbar">
-              <el-input v-model="newSkill.name" placeholder="输入新技能名称" size="small" style="width: 180px;" />
-              <el-select v-model="newSkill.category" placeholder="选择分类" size="small" style="width: 140px;">
+              <el-input v-model="newSkill.name" placeholder="输入新技能名称" size="small" style="width: 180px" />
+              <el-select v-model="newSkill.category" placeholder="选择分类" size="small" style="width: 140px">
                 <el-option label="IT/互联网" value="IT" />
                 <el-option label="财务/会计" value="财务" />
                 <el-option label="行政/人事" value="行政" />
@@ -203,7 +197,6 @@
         </section>
       </div>
     </div>
-
   </div>
 </template>
 
@@ -408,11 +401,12 @@ onMounted(() => {
 }
 
 .lab-panel {
-  background: #ffffff;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
   border-radius: 24px;
   border: 1px solid #dbe7f3;
   box-shadow: 0 18px 44px rgba(15, 23, 42, 0.06);
-  padding: 20px;
+  padding: 22px;
+  overflow: hidden;
 }
 
 .overview-kicker {
@@ -474,7 +468,7 @@ onMounted(() => {
 
 .quick-actions {
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
   gap: 12px;
 }
 
@@ -487,18 +481,13 @@ onMounted(() => {
   color: #0f172a;
   cursor: pointer;
   transition: all 0.2s ease;
+  min-width: 200px;
 }
 
 .quick-action:hover {
   transform: translateY(-1px);
   border-color: #93c5fd;
   background: #eff6ff;
-}
-
-.module-note {
-  line-height: 1.8;
-  color: #475569;
-  margin-bottom: 12px;
 }
 
 .weight-item {
@@ -553,6 +542,63 @@ onMounted(() => {
   margin-bottom: 14px;
   display: flex;
   gap: 10px;
+}
+
+.lab-main :deep(.el-card) {
+  border-radius: 20px;
+  border: 1px solid #dbe7f3;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.05);
+}
+
+.lab-main :deep(.el-card__header) {
+  padding: 18px 20px;
+  border-bottom: 1px solid #e2e8f0;
+  color: #0f172a;
+  font-weight: 700;
+}
+
+.lab-main :deep(.el-card__body) {
+  padding: 20px;
+}
+
+.lab-main :deep(.el-table) {
+  --el-table-border-color: #dbe7f3;
+  --el-table-header-bg-color: #f6faff;
+  --el-table-row-hover-bg-color: #f8fbff;
+  border: 1px solid #dbe7f3;
+  border-radius: 18px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.lab-main :deep(.el-table th.el-table__cell) {
+  color: #64748b;
+  font-weight: 700;
+  background: #f6faff;
+}
+
+.lab-main :deep(.el-button) {
+  border-radius: 12px;
+}
+
+.lab-main :deep(.el-input__wrapper),
+.lab-main :deep(.el-textarea__inner),
+.lab-main :deep(.el-select__wrapper) {
+  border-radius: 14px;
+  box-shadow: 0 0 0 1px #dbe7f3 inset;
+}
+
+.lab-main :deep(.el-tabs__nav-wrap::after) {
+  background: #dbe7f3;
+}
+
+.lab-main :deep(.el-tabs__item.is-active) {
+  color: #2563eb;
+}
+
+.lab-main :deep(.el-tabs__active-bar) {
+  background: #2563eb;
 }
 
 @media (max-width: 1100px) {

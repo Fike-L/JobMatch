@@ -436,23 +436,27 @@ onMounted(() => {
 }
 
 .hr-panel {
-  background: #ffffff;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
   border-radius: 24px;
   border: 1px solid #dbe7f3;
   box-shadow: 0 18px 44px rgba(15, 23, 42, 0.06);
-  padding: 20px;
+  padding: 22px;
+  overflow: hidden;
 }
 
 .toolbar {
-  margin-bottom: 15px;
-  text-align: right;
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 18px;
 }
 
 .match-info {
-  padding: 15px;
+  padding: 16px 18px;
   background: #eef5fe;
+  border: 1px solid #bfdbfe;
   border-left: 5px solid #409eff;
-  margin-bottom: 15px;
+  border-radius: 18px;
+  margin-bottom: 18px;
   font-size: 14px;
   display: flex;
   align-items: center;
@@ -472,7 +476,7 @@ onMounted(() => {
 }
 
 .forum-container {
-  padding: 10px;
+  padding: 4px;
 }
 
 .msg-list {
@@ -505,6 +509,78 @@ onMounted(() => {
   margin: 0;
   color: #444;
   line-height: 1.5;
+}
+
+.hr-main :deep(.el-card) {
+  border-radius: 20px;
+  border: 1px solid #dbe7f3;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.05);
+}
+
+.hr-main :deep(.el-card__header) {
+  padding: 18px 20px;
+  border-bottom: 1px solid #e2e8f0;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.hr-main :deep(.el-card__body) {
+  padding: 20px;
+}
+
+.hr-main :deep(.el-table) {
+  --el-table-border-color: #dbe7f3;
+  --el-table-header-bg-color: #f6faff;
+  --el-table-row-hover-bg-color: #f8fbff;
+  --el-table-current-row-bg-color: #eff6ff;
+  border: 1px solid #dbe7f3;
+  border-radius: 18px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.88);
+}
+
+.hr-main :deep(.el-table th.el-table__cell) {
+  color: #64748b;
+  font-weight: 700;
+  background: #f6faff;
+}
+
+.hr-main :deep(.el-table td.el-table__cell) {
+  color: #0f172a;
+}
+
+.hr-main :deep(.el-button) {
+  border-radius: 12px;
+}
+
+.hr-main :deep(.el-button--primary) {
+  background: #3b82f6;
+  border-color: #3b82f6;
+  color: #ffffff;
+}
+
+.hr-main :deep(.el-button--success) {
+  background: #2563eb;
+  border-color: #2563eb;
+}
+
+.hr-main :deep(.el-button--warning) {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+  color: #1d4ed8;
+}
+
+.hr-main :deep(.el-button--default) {
+  border-color: #dbe7f3;
+  color: #334155;
+}
+
+.hr-main :deep(.el-input__wrapper),
+.hr-main :deep(.el-textarea__inner),
+.hr-main :deep(.el-select__wrapper) {
+  border-radius: 14px;
+  box-shadow: 0 0 0 1px #dbe7f3 inset;
 }
 
 @media (max-width: 1100px) {

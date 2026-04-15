@@ -114,30 +114,64 @@ onMounted(() => {
 
 <style scoped>
 .dashboard-container {
-  padding: 20px;
-  background-color: #f0f2f5;
-  min-height: 100vh;
+  min-height: calc(100vh - 140px);
+  padding: 4px;
 }
 
 .stat-card {
-  border-radius: 8px;
+  border-radius: 20px;
 }
 
 .stat-content {
   display: flex;
   align-items: center;
   gap: 20px;
+  min-height: 96px;
 }
 
 .stat-title {
   font-size: 14px;
-  color: #909399;
+  color: #64748b;
 }
 
 .stat-value {
   font-size: 24px;
   font-weight: bold;
   margin-top: 5px;
-  color: #303133;
+  color: #0f172a;
+}
+
+.dashboard-container :deep(.el-card) {
+  border-radius: 20px;
+  border: 1px solid #dbe7f3;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.05);
+}
+
+.dashboard-container :deep(.el-card__header) {
+  padding: 18px 20px;
+  border-bottom: 1px solid #e2e8f0;
+  color: #0f172a;
+  font-weight: 700;
+}
+
+.dashboard-container :deep(.el-card__body) {
+  padding: 20px;
+}
+
+.dashboard-container :deep(.el-table) {
+  --el-table-border-color: #dbe7f3;
+  --el-table-header-bg-color: #f6faff;
+  --el-table-row-hover-bg-color: #f8fbff;
+  border: 1px solid #dbe7f3;
+  border-radius: 18px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.dashboard-container :deep(.el-table th.el-table__cell) {
+  color: #64748b;
+  font-weight: 700;
+  background: #f6faff;
 }
 </style>

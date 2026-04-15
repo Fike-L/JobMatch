@@ -269,6 +269,14 @@ onMounted(fetchData)
   min-width: 0;
 }
 
+.center-panel {
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+  border-radius: 24px;
+  border: 1px solid #dbe7f3;
+  box-shadow: 0 18px 44px rgba(15, 23, 42, 0.06);
+  padding: 22px;
+}
+
 .panel-alert {
   margin-bottom: 12px;
 }
@@ -304,6 +312,50 @@ onMounted(fetchData)
   margin: 8px 0 0;
   line-height: 1.6;
   color: #333;
+}
+
+.center-main :deep(.el-card) {
+  border-radius: 20px;
+  border: 1px solid #dbe7f3;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.05);
+}
+
+.center-main :deep(.el-card__header) {
+  padding: 18px 20px;
+  border-bottom: 1px solid #e2e8f0;
+  color: #0f172a;
+  font-weight: 700;
+}
+
+.center-main :deep(.el-card__body) {
+  padding: 20px;
+}
+
+.center-main :deep(.el-table) {
+  --el-table-border-color: #dbe7f3;
+  --el-table-header-bg-color: #f6faff;
+  --el-table-row-hover-bg-color: #f8fbff;
+  border: 1px solid #dbe7f3;
+  border-radius: 18px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.center-main :deep(.el-table th.el-table__cell) {
+  color: #64748b;
+  font-weight: 700;
+  background: #f6faff;
+}
+
+.center-main :deep(.el-button) {
+  border-radius: 12px;
+}
+
+.center-main :deep(.el-input__wrapper),
+.center-main :deep(.el-textarea__inner) {
+  border-radius: 14px;
+  box-shadow: 0 0 0 1px #dbe7f3 inset;
 }
 
 @media (max-width: 1100px) {

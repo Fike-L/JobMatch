@@ -11,6 +11,10 @@ const routes = [
   },
   {
     path: '/',
+    redirect: '/admin'
+  },
+  {
+    path: '/dashboard',
     component: () => import('../views/Dashboard.vue'),
     meta: {
       roles: ['admin'],
@@ -24,7 +28,7 @@ const routes = [
     meta: {
       roles: ['seeker'],
       title: '求职工作台',
-      description: '统一管理简历、岗位机会和求职动作。'
+      description: '统一管理简历、岗位推荐和求职动作。'
     }
   },
   {
@@ -50,8 +54,8 @@ const routes = [
     component: () => import('../views/SystemLab.vue'),
     meta: {
       roles: ['admin'],
-      title: '后台运营与实验室',
-      description: '维护词库、算法参数和平台运营工具。'
+      title: '平台总览',
+      description: '管理公告、反馈、词库、权重和算法工具。'
     }
   }
 ]
@@ -70,7 +74,7 @@ router.beforeEach((to, from, next) => {
   if (to.meta.roles && !to.meta.roles.includes(user.role)) {
     if (user.role === 'seeker') return next('/resume')
     if (user.role === 'hr') return next('/hr')
-    if (user.role === 'admin') return next('/')
+    if (user.role === 'admin') return next('/admin')
     return next('/login')
   }
 
