@@ -20,6 +20,10 @@
             <el-icon><Opportunity /></el-icon>
             <span>岗位推荐</span>
           </el-menu-item>
+          <el-menu-item index="allJobs">
+            <el-icon><Briefcase /></el-icon>
+            <span>全部岗位</span>
+          </el-menu-item>
         </el-menu>
       </aside>
 
@@ -76,6 +80,7 @@
                 <div class="action-list">
                   <button class="action-item" @click="activePanel = 'resumeEdit'">更新简历内容并重新保存</button>
                   <button class="action-item" @click="activePanel = 'recommendations'">查看岗位推荐与投递动作</button>
+                  <button class="action-item" @click="activePanel = 'allJobs'">主动查看平台全部岗位</button>
                   <button class="action-item" @click="activePanel = 'resumeSync'">重新上传文件并刷新画像</button>
                 </div>
               </el-card>
@@ -157,7 +162,7 @@
                   <div class="recommendation-meta">
                     <div>
                       <div class="job-title">{{ row.job_info.title }}</div>
-                      <div class="job-meta">{{ row.job_info.company }} | {{ row.job_info.loc }}</div>
+                      <div class="job-meta">{{ row.job_info.company }}</div>
                     </div>
                     <el-tag type="success" effect="light">推荐岗位</el-tag>
                   </div>
@@ -179,6 +184,52 @@
             <el-empty v-else description="暂无岗位推荐，请先完善简历资料" />
           </el-card>
         </section>
+
+        <section v-show="activePanel === 'allJobs'" class="panel-section">
+          <el-card class="job-card">
+            <template #header>
+              <div class="recommendation-header">
+                <div>
+                  <div class="recommendation-kicker">岗位一览</div>
+                  <div class="recommendation-title">查看全平台开放岗位</div>
+                </div>
+                <el-tag type="info" effect="plain">{{ allJobs.length }} 个岗位</el-tag>
+              </div>
+            </template>
+
+            <div v-if="allJobs.length" class="job-browser-list">
+              <article v-for="job in allJobs" :key="job.id" class="job-browser-item">
+                <div class="job-browser-top">
+                  <div class="job-browser-head">
+                    <div class="job-title">{{ job.title }}</div>
+                    <div class="job-meta">{{ job.company }}</div>
+                  </div>
+                  <div class="job-browser-side">
+                    <div class="job-browser-salary">{{ job.salary || '薪资面议' }}</div>
+                    <el-tag type="primary" effect="light">开放岗位</el-tag>
+                  </div>
+                </div>
+
+                <p class="job-description">{{ job.description || '暂无岗位详细要求' }}</p>
+
+                <div class="job-browser-bottom">
+                  <div class="recommendation-skills">
+                    <el-tag v-for="skill in jobSkills(job)" :key="skill" type="info" effect="plain">
+                      {{ skill }}
+                    </el-tag>
+                  </div>
+
+                  <div class="recommendation-actions job-browser-actions">
+                    <el-button type="primary" @click="handleApply(job)">投递</el-button>
+                    <el-button type="warning" @click="handleFavorite(job)">收藏</el-button>
+                    <el-button type="info" plain @click="analyzeGap(job)">差距分析</el-button>
+                  </div>
+                </div>
+              </article>
+            </div>
+            <el-empty v-else description="暂无可浏览岗位" />
+          </el-card>
+        </section>
       </div>
     </div>
   </div>
@@ -189,7 +240,7 @@ import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import axios from 'axios'
 import * as echarts from 'echarts'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { DataBoard, EditPen, Opportunity, UploadFilled } from '@element-plus/icons-vue'
+import { Briefcase, DataBoard, EditPen, Opportunity, UploadFilled } from '@element-plus/icons-vue'
 
 const parsedData = ref({
   name: '',
@@ -198,6 +249,7 @@ const parsedData = ref({
   metrics: { experience: 0, education: 0, structure: 0 }
 })
 const recommendedJobs = ref([])
+const allJobs = ref([])
 const loading = ref(false)
 const activePanel = ref('overview')
 let myChart = null
@@ -215,8 +267,10 @@ onMounted(async () => {
       parsedData.value = res.data.data
       await refreshMatches()
     }
+    await loadAllJobs()
   } catch (error) {
     console.log('未找到历史简历')
+    await loadAllJobs()
   } finally {
     loading.value = false
   }
@@ -235,6 +289,15 @@ const refreshMatches = async () => {
     })
   } catch (error) {
     console.error('岗位匹配失败', error)
+  }
+}
+
+const loadAllJobs = async () => {
+  try {
+    const res = await axios.get('http://127.0.0.1:8000/jobs/all')
+    allJobs.value = res.data.data || []
+  } catch (error) {
+    console.error('全部岗位加载失败', error)
   }
 }
 
@@ -279,39 +342,45 @@ const saveResumeOnline = async () => {
 
 const handleApply = async (row) => {
   const user = JSON.parse(localStorage.getItem('user'))
+  const job = normalizeJobRow(row)
   const res = await axios.post('http://127.0.0.1:8000/apply_job', {
     user_id: user.id,
-    job_id: row.job_info.id
+    job_id: job.id
   })
   if (res.data.status === 'success') ElMessage.success(res.data.message)
 }
 
 const handleFavorite = async (row) => {
   const user = JSON.parse(localStorage.getItem('user'))
+  const job = normalizeJobRow(row)
   const res = await axios.post('http://127.0.0.1:8000/favorite_job', {
     user_id: user.id,
-    job_id: row.job_info.id
+    job_id: job.id
   })
   if (res.data.status === 'success') ElMessage.success('已收藏')
 }
 
 const analyzeGap = async (row) => {
+  const job = normalizeJobRow(row)
   const res = await axios.post('http://127.0.0.1:8000/get_skill_gap', {
     user_skills: parsedData.value.skills,
-    job_title: row.job_info.title,
-    job_skills_text: row.job_info.skills + row.job_info.description
+    job_title: job.title,
+    job_skills_text: `${job.skills || ''} ${job.description || ''}`
   })
   ElMessageBox.alert(res.data.advice, '改进建议')
 }
 
 const jobSkills = (row) => {
-  const skills = row?.job_info?.skills || ''
+  const job = normalizeJobRow(row)
+  const skills = job.skills || ''
   return String(skills)
     .split(/[,\uff0c/|]/)
     .map((item) => item.trim())
     .filter(Boolean)
     .slice(0, 6)
 }
+
+const normalizeJobRow = (row) => row?.job_info || row || {}
 
 const removeSkill = (skill) => {
   parsedData.value.skills = parsedData.value.skills.filter((tag) => tag !== skill)
@@ -631,6 +700,67 @@ watch(activePanel, (panel) => {
   margin-top: 4px;
 }
 
+.job-description {
+  margin: 0;
+  color: #475569;
+  line-height: 1.7;
+}
+
+.job-browser-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.job-browser-item {
+  padding: 20px 22px;
+  border: 1px solid #dbe7f3;
+  border-radius: 18px;
+  background: #ffffff;
+}
+
+.job-browser-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.job-browser-head {
+  min-width: 0;
+}
+
+.job-browser-side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.job-browser-salary {
+  min-width: 116px;
+  padding: 8px 14px;
+  border-radius: 12px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-size: 18px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.job-browser-bottom {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 14px;
+}
+
+.job-browser-actions {
+  flex-shrink: 0;
+}
+
 .workspace-main :deep(.el-card) {
   border-radius: 20px;
   border: 1px solid #dbe7f3;
@@ -691,6 +821,16 @@ watch(activePanel, (panel) => {
   .recommendation-header,
   .recommendation-meta {
     flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .job-browser-top,
+  .job-browser-bottom {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .job-browser-side {
     align-items: flex-start;
   }
 }

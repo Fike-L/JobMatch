@@ -37,8 +37,9 @@
 
           <el-table :data="myJobs" stripe style="width: 100%">
             <el-table-column prop="title" label="职位名称" min-width="150" />
-            <el-table-column prop="salary" label="薪资范围" width="120" />
-            <el-table-column prop="experience" label="经验要求" width="120" />
+            <el-table-column prop="company" label="公司名称" min-width="160" />
+            <el-table-column prop="salary" label="薪资范围" width="140" />
+            <el-table-column prop="skills" label="技能关键词" min-width="220" show-overflow-tooltip />
             <el-table-column label="操作" width="220" fixed="right">
               <template #default="scope">
                 <el-button size="small" :icon="Edit" @click="handleEdit(scope.row)">编辑</el-button>
@@ -99,13 +100,14 @@
 
                 <el-dropdown trigger="click" @command="(cmd) => handleIntent(scope.row, cmd)" style="margin-left: 10px">
                   <el-button size="small" type="warning">
-                    发送反馈意向<el-icon class="el-icon--right"><ArrowDown /></el-icon>
+                    发送反馈意向
+                    <el-icon class="el-icon--right"><ArrowDown /></el-icon>
                   </el-button>
                   <template #dropdown>
                     <el-dropdown-menu>
-                      <el-dropdown-item command="邀约面试">邀约面试</el-dropdown-item>
-                      <el-dropdown-item command="录用通知">录用通知</el-dropdown-item>
-                      <el-dropdown-item command="暂不合适">暂不合适</el-dropdown-item>
+                      <el-dropdown-item command="待面试">邀约面试</el-dropdown-item>
+                      <el-dropdown-item command="已录用">录用通知</el-dropdown-item>
+                      <el-dropdown-item command="不合适">暂不合适</el-dropdown-item>
                     </el-dropdown-menu>
                   </template>
                 </el-dropdown>
@@ -169,9 +171,11 @@
 
     <el-dialog v-model="editDialog" title="修改职位描述信息" width="50%">
       <el-form :model="editForm" label-position="top">
+        <el-form-item label="公司名称"><el-input v-model="editForm.company" /></el-form-item>
         <el-form-item label="职位标题"><el-input v-model="editForm.title" /></el-form-item>
         <el-form-item label="薪资范围"><el-input v-model="editForm.salary" /></el-form-item>
-        <el-form-item label="详细要求 (JD)"><el-input type="textarea" :rows="8" v-model="editForm.description" /></el-form-item>
+        <el-form-item label="技能关键词"><el-input v-model="editForm.skills" placeholder="如：Java，Spring Boot，MySQL，Redis" /></el-form-item>
+        <el-form-item label="岗位详细要求"><el-input type="textarea" :rows="8" v-model="editForm.description" /></el-form-item>
         <div style="text-align: right;">
           <el-button @click="editDialog = false">取消</el-button>
           <el-button type="primary" @click="submitUpdate">确认保存</el-button>
@@ -186,12 +190,12 @@
             <el-form-item label="职位名称"><el-input v-model="createForm.title" placeholder="如：Java工程师" /></el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="薪资范围"><el-input v-model="createForm.salary" placeholder="如：$60K-$100K" /></el-form-item>
+            <el-form-item label="公司名称"><el-input v-model="createForm.company" placeholder="如：星海科技" /></el-form-item>
           </el-col>
         </el-row>
-        <el-form-item label="工作城市"><el-input v-model="createForm.location" placeholder="如：上海、北京、远程" /></el-form-item>
+        <el-form-item label="薪资范围"><el-input v-model="createForm.salary" placeholder="如：15K-25K" /></el-form-item>
         <el-form-item label="核心技能关键词"><el-input v-model="createForm.skills" placeholder="用逗号分隔" /></el-form-item>
-        <el-form-item label="详细职位描述 (JD)"><el-input type="textarea" :rows="6" v-model="createForm.description" /></el-form-item>
+        <el-form-item label="岗位详细要求"><el-input type="textarea" :rows="6" v-model="createForm.description" placeholder="说明岗位需要的技能、负责内容，以及学历或工作年限要求" /></el-form-item>
         <div style="text-align: right;">
           <el-button @click="createVisible = false">取消</el-button>
           <el-button type="primary" @click="submitCreate">立即发布入库</el-button>
@@ -231,7 +235,7 @@ const currentResume = ref('')
 const editDialog = ref(false)
 const editForm = ref({})
 const createVisible = ref(false)
-const createForm = ref({ title: '', salary: '', skills: '', description: '', company: '本企业', location: '' })
+const createForm = ref({ title: '', company: '', salary: '', skills: '', description: '' })
 const scheVisible = ref(false)
 const scheForm = ref({ app_id: '', time: '', location: '', notes: '' })
 const activeSection = ref('jobs')
@@ -267,7 +271,10 @@ const goMatch = async (job) => {
   activeSection.value = 'matching'
   try {
     const res = await axios.post('http://127.0.0.1:8000/rank_candidates', {
-      description: (job.description || '') + (job.skills || '')
+      title: job.title,
+      company: job.company,
+      skills: job.skills,
+      description: job.description
     })
     candidates.value = res.data.results || []
     ElMessage.success('人才画像匹配完成')
@@ -361,6 +368,7 @@ const submitUpdate = async () => {
 }
 
 const openCreateDialog = () => {
+  createForm.value = { title: '', company: '', salary: '', skills: '', description: '' }
   createVisible.value = true
 }
 
@@ -373,7 +381,7 @@ const submitCreate = async () => {
 }
 
 const getStatusType = (status) => {
-  const map = { '邀约面试': 'success', '录用通知': 'success', '暂不合适': 'danger' }
+  const map = { 待面试: 'success', 已录用: 'success', 不合适: 'danger' }
   return map[status] || 'info'
 }
 
