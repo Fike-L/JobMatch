@@ -72,7 +72,7 @@
           <el-card header="面试日程表">
             <el-table :data="interviews" stripe border>
               <el-table-column prop="title" label="岗位" />
-              <el-table-column prop="Company" label="公司" />
+              <el-table-column prop="company" label="公司" />
               <el-table-column prop="interview_time" label="面试时间" width="180" />
               <el-table-column prop="location" label="地点" />
               <el-table-column prop="notes" label="HR 备注" />
@@ -99,13 +99,21 @@
         <section v-show="activeSection === 'community'" class="center-panel">
           <el-card header="求职交流区">
             <div class="forum-container">
-              <el-input v-model="msgInput" placeholder="在这里交流求职经验..." @keyup.enter="postMsg">
-                <template #append><el-button @click="postMsg">发送</el-button></template>
-              </el-input>
+              <div class="forum-composer">
+                <div class="forum-composer-title">发布交流内容</div>
+                <el-input v-model="msgInput" placeholder="分享求职经验、面试心得或岗位信息..." @keyup.enter="postMsg">
+                  <template #append><el-button @click="postMsg">发布</el-button></template>
+                </el-input>
+              </div>
               <el-divider />
-              <div v-for="m in messages" :key="m.id" class="msg-item">
-                <strong>{{ m.username }}</strong> <small>{{ m.post_time }}</small>
-                <p>{{ m.content }}</p>
+              <div class="msg-list">
+                <div v-for="m in messages" :key="m.id" class="msg-item">
+                  <div class="msg-header">
+                    <strong>{{ m.username }}</strong>
+                    <small>{{ m.post_time }}</small>
+                  </div>
+                  <p>{{ m.content }}</p>
+                </div>
               </div>
             </div>
           </el-card>
@@ -148,10 +156,10 @@ const fetchData = async () => {
 
     const resFav = await axios.get(`http://127.0.0.1:8000/seeker/favorites/${user.id}`)
     favs.value = (resFav.data.data || []).map((item) => ({
-      id: item['Job Id'],
-      title: item['Job Title'],
-      company: item.Company,
-      salary: item['Salary Range']
+      id: item.id,
+      title: item.title,
+      company: item.company,
+      salary: item.salary
     }))
 
     const resAnno = await axios.get('http://127.0.0.1:8000/common/announcements')
@@ -286,26 +294,49 @@ onMounted(fetchData)
 }
 
 .forum-container {
+  padding: 4px;
+}
+
+.forum-composer {
+  padding: 18px;
+  border-radius: 18px;
+  border: 1px solid #dbe7f3;
+  background: #f8fbff;
+}
+
+.forum-composer-title {
+  margin-bottom: 12px;
+  color: #0f172a;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.msg-list {
   max-height: 500px;
   overflow-y: auto;
-  padding: 10px;
 }
 
 .msg-item {
-  background: #f9f9f9;
-  padding: 15px;
-  border-radius: 8px;
-  margin-bottom: 10px;
-  border-left: 4px solid #409eff;
+  padding: 16px;
+  border-radius: 16px;
+  margin-bottom: 12px;
+  border: 1px solid #dbe7f3;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+}
+
+.msg-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
 }
 
 .msg-item strong {
-  color: #409eff;
+  color: #2563eb;
 }
 
 .msg-item small {
-  color: #999;
-  margin-left: 10px;
+  color: #94a3b8;
 }
 
 .msg-item p {
